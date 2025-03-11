@@ -1,9 +1,7 @@
 import {
-  IsDate,
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNotEmptyObject,
   IsNumber,
   IsOptional,
   IsPositive,
@@ -12,12 +10,7 @@ import {
 } from 'class-validator';
 import { ProductStatus } from '../entity/product-status.enum';
 import { Product } from '../entity/product.entity';
-
-export class ProductDTO {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
+export class updateProductDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -38,17 +31,11 @@ export class ProductDTO {
   @IsNotEmpty()
   status: ProductStatus;
 
-  @IsDate()
-  @IsNotEmptyObject()
-  createdAt: Date;
-
   constructor(product: Product) {
-    this.id = product.id;
     this.name = product.name;
     this.description = product.description;
     this.price = product.price;
     this.stock = product.stock;
     this.status = product.status;
-    this.createdAt = product.createdAt;
   }
 }

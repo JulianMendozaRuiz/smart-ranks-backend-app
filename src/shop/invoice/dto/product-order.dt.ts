@@ -1,23 +1,17 @@
-import {
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsPositive,
-  ValidateNested,
-} from 'class-validator';
-import { ProductDTO } from '../../product/dto/product.dt';
+import { IsMongoId, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { ProductOrder } from '../entity/product-order.entity';
 
 export class ProductOrderDTO {
   @IsMongoId()
   @IsNotEmpty()
   product_id: string;
 
-  @IsNotEmptyObject()
-  @ValidateNested()
-  product: ProductDTO;
-
   @IsNumber()
   @IsPositive()
   quantity: number;
+
+  constructor(productOrder: ProductOrder) {
+    this.product_id = productOrder.product_id;
+    this.quantity = productOrder.quantity;
+  }
 }

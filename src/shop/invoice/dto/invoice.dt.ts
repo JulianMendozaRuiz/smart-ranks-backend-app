@@ -10,6 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ProductOrderDTO } from './product-order.dt';
+import { Invoice } from '../entity/invoice.entity';
 
 export class InvoiceDTO {
   @IsString()
@@ -32,4 +33,12 @@ export class InvoiceDTO {
 
   @IsDate()
   date: Date;
+
+  constructor(invoice: Invoice) {
+    this.id = invoice.id;
+    this.user_id = invoice.user_id;
+    this.products = invoice.products.map((po) => new ProductOrderDTO(po));
+    this.total = invoice.total;
+    this.date = invoice.date;
+  }
 }
