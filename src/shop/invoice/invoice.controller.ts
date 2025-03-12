@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -85,6 +86,7 @@ export class InvoiceController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @ApiParam({ name: 'id', type: 'string', description: 'Id of invoice' })
   @ApiOkResponse({ description: 'Invoice deleted.' })
   @ApiNotFoundResponse({ description: 'Invoice not found.' })

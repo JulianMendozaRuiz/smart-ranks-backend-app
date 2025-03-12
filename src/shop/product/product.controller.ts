@@ -4,6 +4,7 @@ import {
   DefaultValuePipe,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -95,6 +96,7 @@ export class ProductController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @ApiOperation({ summary: 'Delete product' })
   @ApiParam({ name: 'id', description: 'Product id' })
   @ApiNoContentResponse({ description: 'Product deleted.' })
