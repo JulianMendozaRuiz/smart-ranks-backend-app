@@ -1,3 +1,5 @@
+// TODO: Remove after implementing methods
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpException, Injectable } from '@nestjs/common';
 import { Product } from './entity/product.entity';
 import { ProductDTO } from './dto/product.dt';
@@ -5,6 +7,7 @@ import { CreateProductDTO } from './dto/create-product.dt';
 import { randomUUID } from 'crypto';
 import { updateProductDTO } from './dto/update-product.dt';
 import { ProductPriceDTO } from './dto/product-price.dt';
+import { ProductStatus } from './entity/product-status.enum';
 
 @Injectable()
 export class ProductService {
@@ -12,31 +15,50 @@ export class ProductService {
 
   // TODO: Implement methods for CRUD operations using access to external DB
 
-  async getProducts(
+  //TODO: Implement method
+  async findAll(
     sort: 'asc' | 'desc' = 'asc',
     limit: number,
   ): Promise<ProductDTO[]> {
-    const sortAsc = (a: Product, b: Product) => (a.name > b.name ? 1 : -1);
-    const sortDesc = (a: Product, b: Product) => (a.name < b.name ? 1 : -1);
+    // const sortAsc = (a: Product, b: Product) => (a.name > b.name ? 1 : -1);
+    // const sortDesc = (a: Product, b: Product) => (a.name < b.name ? 1 : -1);
 
-    // Create a new sorted copy instead of mutating the original array
-    const sortedProducts = [...this.products].sort(
-      sort === 'asc' ? sortAsc : sortDesc,
-    );
+    // // Create a new sorted copy instead of mutating the original array
+    // const sortedProducts = [...this.products].sort(
+    //   sort === 'asc' ? sortAsc : sortDesc,
+    // );
 
-    return sortedProducts
-      .slice(0, limit)
-      .map((product) => new ProductDTO(product));
+    // return sortedProducts
+    //   .slice(0, limit)
+    //   .map((product) => new ProductDTO(product));
+    return [
+      {
+        id: '1',
+        name: 'Product 1',
+        description: 'Description 1',
+        price: 10,
+        stock: 100,
+        status: ProductStatus.ACTIVE,
+        createdAt: new Date(),
+      },
+    ];
   }
 
-  async getProductById(id: string): Promise<ProductDTO | undefined> {
+  async findById(id: string): Promise<ProductDTO> {
     // TODO: Replace with database search
-    return this.products.find((product) => product.id === id);
+    // return this.products.find((product) => product.id === id);
+    return {
+      id: '1',
+      name: 'Product 1',
+      description: 'Description 1',
+      price: 10,
+      stock: 100,
+      status: ProductStatus.ACTIVE,
+      createdAt: new Date(),
+    };
   }
 
-  async getProductsWithPricesById(
-    pIdList: string[],
-  ): Promise<ProductPriceDTO[]> {
+  async findByIdOnlyPrice(pIdList: string[]): Promise<ProductPriceDTO[]> {
     const products: ProductPriceDTO[] = [];
 
     // TODO: Replace with database search
@@ -53,41 +75,51 @@ export class ProductService {
     return products;
   }
 
-  async createProduct(product: CreateProductDTO): Promise<ProductDTO> {
+  async create(product: CreateProductDTO): Promise<ProductDTO> {
     // Generate a unique ID for the new product using DB API
-    const newProduct = { ...product, id: randomUUID(), createdAt: new Date() };
-    this.products.push(newProduct);
+    // const newProduct = { ...product, id: randomUUID(), createdAt: new Date() };
+    // this.products.push(newProduct);
 
-    return new ProductDTO(newProduct);
+    // return new ProductDTO(newProduct);
+    return {
+      id: '1',
+      name: 'Product 1',
+      description: 'Description 1',
+      price: 10,
+      stock: 100,
+      status: ProductStatus.ACTIVE,
+      createdAt: new Date(),
+    };
   }
 
-  async updateProduct(
-    id: string,
-    newProduct: updateProductDTO,
-  ): Promise<ProductDTO | undefined> {
+  async update(id: string, newProduct: updateProductDTO): Promise<ProductDTO> {
     // TODO: Replace with database search
-    const productIndex = this.products.findIndex((p) => p.id === id);
-
-    if (productIndex === -1) {
-      throw new HttpException('Product not found', 404);
-    }
-
-    // TODO: Replace with database update operation or call to update
-    const updatedProduct = { ...this.products[productIndex], ...newProduct };
-    this.products[productIndex] = updatedProduct;
-
-    return new ProductDTO(updatedProduct);
+    // const productIndex = this.products.findIndex((p) => p.id === id);
+    // if (productIndex === -1) {
+    //   throw new HttpException('Product not found', 404);
+    // }
+    // // TODO: Replace with database update operation or call to update
+    // const updatedProduct = { ...this.products[productIndex], ...newProduct };
+    // this.products[productIndex] = updatedProduct;
+    // return new ProductDTO(updatedProduct);
+    return {
+      id: '1',
+      name: 'Product 1',
+      description: 'Description 1',
+      price: 10,
+      stock: 100,
+      status: ProductStatus.INACTIVE,
+      createdAt: new Date(),
+    };
   }
 
-  async deleteProduct(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     // TODO: Replace with database search
-    const productIndex = this.products.findIndex((p) => p.id === id);
-
-    if (productIndex === -1) {
-      throw new HttpException('Product not found', 404);
-    }
-
+    // const productIndex = this.products.findIndex((p) => p.id === id);
+    // if (productIndex === -1) {
+    //   throw new HttpException('Product not found', 404);
+    // }
     // TODO: Replace with database delete operation or call to delete
-    this.products.splice(productIndex, 1);
+    // this.products.splice(productIndex, 1);
   }
 }
