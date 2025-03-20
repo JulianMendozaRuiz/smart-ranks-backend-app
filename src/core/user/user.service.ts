@@ -19,7 +19,7 @@ export class UserService {
   ): Promise<UserDTO[]> {
     return [
       {
-        id: '1',
+        _id: '1',
         name: 'name',
         email: 'john.doe@email.com',
         role: UserRole.USER,
@@ -30,7 +30,7 @@ export class UserService {
   // TODO: Implement method
   async findById(id: string): Promise<UserDTO> {
     return {
-      id: '1',
+      _id: '1',
       name: 'name',
       email: 'john.doe@email.com',
       role: UserRole.USER,
@@ -40,7 +40,7 @@ export class UserService {
   // TODO: Implement method
   async create(user: CreateUserDTO): Promise<UserDTO> {
     return {
-      id: '1',
+      _id: '1',
       name: 'name',
       email: 'john.doe@email.com',
       role: UserRole.USER,
@@ -50,7 +50,7 @@ export class UserService {
   // TODO: Implement method
   async update(id: string, user: UpdateUserDTO): Promise<UserDTO> {
     return {
-      id: '1',
+      _id: '1',
       name: 'name',
       email: 'john.doe@email.com',
       role: UserRole.USER,

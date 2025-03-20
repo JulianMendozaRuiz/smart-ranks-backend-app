@@ -1,40 +1,26 @@
-import {
-  IsArray,
-  IsDate,
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
 import { ProductOrder } from './product-order.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
+@Schema()
 export class Invoice {
-  @IsString()
-  @IsMongoId()
+  @Prop({ isRequired: true })
   id: string;
 
-  @IsString()
-  @IsMongoId()
-  @IsNotEmpty()
+  @Prop({ isRequired: true, type: mongoose.Types.ObjectId, ref: 'user' })
   user_id: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductOrder)
+  @Prop({ isRequired: true, type: [ProductOrder] })
   products: ProductOrder[];
 
-  @IsNumber()
-  @Min(0)
+  @Prop({ isRequired: true })
   total: number;
 
-  @IsDate()
+  @Prop({ isRequired: true, index: true })
   date: Date;
 
-  @IsDate()
-  @IsNotEmptyObject()
+  @Prop({ isRequired: true, index: true })
   createdAt: Date;
 }
+
+export const InvoiceSchema = SchemaFactory.createForClass(Invoice);

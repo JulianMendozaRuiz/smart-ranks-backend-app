@@ -7,29 +7,25 @@ import { CreateInvoiceDTO } from './dto/create-invoice.dt';
 import { ProductOrderDTO } from './dto/product-order.dt';
 import { ProductService } from '../product/product.service';
 import { UpdateInvoiceDTO } from './dto/update-invoice.dt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class InvoiceService {
   private invoices: Invoice[] = [];
 
-  constructor(private prouductService: ProductService) {}
+  constructor(
+    private prouductService: ProductService,
+    @InjectModel(Invoice.name) private invoiceModel: Model<Invoice>,
+  ) {}
   // TODO: Implement methods for CRUD operations using access to external DB
 
-  async findAll(
-    sort: 'asc' | 'desc' = 'asc',
-    limit: number,
-  ): Promise<InvoiceDTO[]> {
-    const sortAsc = (a: Invoice, b: Invoice) => (a.date > b.date ? 1 : -1);
-    const sortDesc = (a: Invoice, b: Invoice) => (a.date < b.date ? 1 : -1);
-
-    // Create a new sorted copy instead of mutating the original array
-    const sortedInvoices = [...this.invoices].sort(
-      sort === 'asc' ? sortAsc : sortDesc,
-    );
-
-    return sortedInvoices
-      .slice(0, limit)
-      .map((invoice) => new InvoiceDTO(invoice));
+  async findAll(sort: 'asc' | 'desc' = 'asc', limit: number) {
+    return await this.invoiceModel
+      .find()
+      .sort({ date: sort })
+      .limit(limit)
+      .exec();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -43,7 +43,7 @@ export class ProductDTO {
   createdAt: Date;
 
   constructor(product: Product) {
-    this.id = product.id;
+    this.id = product._id;
     this.name = product.name;
     this.description = product.description;
     this.price = product.price;

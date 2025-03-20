@@ -1,43 +1,28 @@
-import {
-  IsDate,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-  Min,
-} from 'class-validator';
 import { ProductStatus } from './product-status.enum';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+@Schema()
 export class Product {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
+  // No decorator required as Mongoose already controls it regardless of its presence
+  _id: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @Prop({ isRequired: true })
   name: string;
 
-  @IsString()
-  @IsOptional()
+  @Prop({ isRequired: false })
   description?: string;
 
-  @IsNumber()
-  @IsPositive()
+  @Prop({ isRequired: true })
   price: number;
 
-  @IsInt()
-  @Min(0)
+  @Prop({ isRequired: true })
   stock: number;
 
-  @IsEnum(ProductStatus)
-  @IsNotEmpty()
+  @Prop({ type: String, isRequired: true, enum: ProductStatus })
   status: ProductStatus;
 
-  @IsDate()
-  @IsNotEmptyObject()
+  @Prop({ isRequired: true, index: true })
   createdAt: Date;
 }
+
+export const ProductSchema = SchemaFactory.createForClass(Product);

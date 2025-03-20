@@ -9,8 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { ProductStatus } from '../entity/product-status.enum';
-import { Product } from '../entity/product.entity';
-export class updateProductDTO {
+export class UpdateProductDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -30,12 +29,4 @@ export class updateProductDTO {
   @IsEnum(ProductStatus)
   @IsNotEmpty()
   status: ProductStatus;
-
-  constructor(product: Product) {
-    this.name = product.name;
-    this.description = product.description;
-    this.price = product.price;
-    this.stock = product.stock;
-    this.status = product.status;
-  }
 }

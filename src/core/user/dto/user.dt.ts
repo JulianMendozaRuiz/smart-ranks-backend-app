@@ -22,7 +22,7 @@ export class UserDTO {
     description: 'Unique identifier of the user',
     example: '67cf6c6ef2fed55d187c16aa',
   })
-  id: string;
+  _id: string;
 
   @IsString()
   @IsOptional()
@@ -51,7 +51,7 @@ export class UserDTO {
   role: UserRole;
 
   constructor(pUser: User) {
-    this.id = pUser.id;
+    this._id = pUser._id;
     this.name = pUser.name;
     this.email = pUser.email;
     this.role = pUser.role;

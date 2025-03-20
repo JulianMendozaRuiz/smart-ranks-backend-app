@@ -5,7 +5,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -27,7 +26,8 @@ import { ProductService } from './product.service';
 import { ProductDTO } from './dto/product.dt';
 import { IsPositivePipe } from '../../common/pipes/is-positive/is-positive.pipe';
 import { CreateProductDTO } from './dto/create-product.dt';
-import { updateProductDTO } from './dto/update-product.dt';
+import { UpdateProductDTO } from './dto/update-product.dt';
+import { IsMongoIdPipe } from '../../common/pipes/is-mongo-id/is-mongo-id.pipe';
 
 @ApiTags('Product')
 @Controller('product')
@@ -42,12 +42,16 @@ export class ProductController {
     isArray: true,
   })
   @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
-  findAll(
+  async findAll(
     @Query('sort') sort: 'asc' | 'desc' = 'desc',
     @Query('limit', new DefaultValuePipe(100), ParseIntPipe, IsPositivePipe)
     limit: number,
   ) {
-    return this.productService.findAll(sort, limit);
+    const result = await this.productService.findAll(sort, limit);
+    // TODO: Move to logging service instead
+    console.log('found products', result);
+
+    return result;
   }
 
   @Get(':id')
@@ -58,14 +62,13 @@ export class ProductController {
     type: ProductDTO,
   })
   @ApiNotFoundResponse({ description: 'Product not found.' })
-  @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
-  async findOne(@Param() id: string) {
-    console.log(id);
+  @ApiBadRequestResponse({ description: 'Invalid mongoid provided' })
+  async findOne(@Param('id', ValidationPipe, IsMongoIdPipe) id: string) {
     const product = await this.productService.findById(id);
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    // TODO: Move to logging service instead
+    console.log('product', product);
+
     return product;
   }
 
@@ -84,13 +87,13 @@ export class ProductController {
   @ApiOperation({ summary: 'Update product' })
   @ApiOkResponse({
     description: 'Product updated.',
-    type: updateProductDTO,
+    type: UpdateProductDTO,
   })
   @ApiNotFoundResponse({ description: 'Product not found.' })
   @ApiBadRequestResponse({ description: 'Invalid product object provided' })
   update(
-    @Param(ValidationPipe) id: string,
-    @Body(ValidationPipe) input: updateProductDTO,
+    @Param('id', ValidationPipe) id: string,
+    @Body(ValidationPipe) input: UpdateProductDTO,
   ) {
     return this.productService.update(id, input);
   }
@@ -101,7 +104,7 @@ export class ProductController {
   @ApiParam({ name: 'id', description: 'Product id' })
   @ApiNoContentResponse({ description: 'Product deleted.' })
   @ApiNotFoundResponse({ description: 'Product not found.' })
-  async remove(@Param(ValidationPipe) id: string) {
+  async remove(@Param('id', ValidationPipe) id: string) {
     await this.productService.delete(id);
   }
 }

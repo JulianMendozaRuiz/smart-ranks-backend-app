@@ -1,37 +1,24 @@
-import {
-  IsDate,
-  IsEmail,
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsNotEmptyObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
 import { UserRole } from './user-role.enum';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 
 export class User {
-  @IsString()
-  @IsNotEmpty()
-  @IsMongoId()
-  id: string;
+  @Prop({ isRequired: true })
+  _id: string;
 
-  @IsString()
-  @IsOptional()
+  @Prop()
   name?: string;
 
-  @IsEmail()
-  @IsNotEmpty()
+  @Prop({ isRequired: true })
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @Prop({ isRequired: true })
   password: string;
 
-  @IsEnum(UserRole)
+  @Prop({ isRequired: true, type: String, enum: UserRole })
   role: UserRole;
 
-  @IsDate()
-  @IsNotEmptyObject()
+  @Prop({ isRequired: true, index: true })
   createdAt: Date;
 }
+
+export const UserSchema = SchemaFactory.createForClass(User);
