@@ -4,8 +4,7 @@ import mongoose from 'mongoose';
 
 @Schema()
 export class Invoice {
-  @Prop({ isRequired: true })
-  id: string;
+  _id: string;
 
   @Prop({ isRequired: true, type: mongoose.Types.ObjectId, ref: 'user' })
   user_id: string;

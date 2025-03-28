@@ -1,95 +1,123 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { Invoice } from './entity/invoice.entity';
 import { InvoiceDTO } from './dto/invoice.dt';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { randomUUID } from 'crypto';
 import { CreateInvoiceDTO } from './dto/create-invoice.dt';
 import { ProductOrderDTO } from './dto/product-order.dt';
 import { ProductService } from '../product/product.service';
 import { UpdateInvoiceDTO } from './dto/update-invoice.dt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UserService } from '../../core/user/user.service';
+import { ProductPurchaseDTO } from '../product/dto/product-purchase.dt';
 
 @Injectable()
 export class InvoiceService {
-  private invoices: Invoice[] = [];
-
   constructor(
-    private prouductService: ProductService,
     @InjectModel(Invoice.name) private invoiceModel: Model<Invoice>,
+    private prouductService: ProductService,
+    private userService: UserService,
   ) {}
-  // TODO: Implement methods for CRUD operations using access to external DB
 
   async findAll(sort: 'asc' | 'desc' = 'asc', limit: number) {
-    return await this.invoiceModel
+    const queryResult = await this.invoiceModel
       .find()
       .sort({ date: sort })
       .limit(limit)
       .exec();
+
+    return queryResult.map((invoice) => new InvoiceDTO(invoice));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async findById(id: string): Promise<InvoiceDTO | undefined> {
-    // TODO: Replace with database search
-    // return this.invoices.find((invoice) => invoice.id === id);
-    return {
-      id: 'id',
-      user_id: 'user_id',
-      products: [],
-      total: 100,
-      date: new Date(),
-    };
+    const invoice = await this.invoiceModel.findById(id).exec();
+
+    if (!invoice) {
+      throw new HttpException(`Invoice with ID ${id} not found`, 404);
+    }
+
+    return new InvoiceDTO(invoice);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async create(invoice: CreateInvoiceDTO): Promise<InvoiceDTO> {
-    // TODO: Replace with database insert operation or call to create
+    await this.userService.findById(invoice.user_id);
 
-    // const total = await this.getTotal(invoice.products);
+    const productsPurchase = await this.prouductService.validateProductsExist(
+      invoice.products,
+    );
 
-    // const newInvoice: Invoice = {
-    //   ...invoice,
-    //   id: randomUUID(),
-    //   createdAt: new Date(),
-    //   total,
-    // };
-    // this.invoices.push(newInvoice);
+    const total = this.calculateTotalAndCheckStock(
+      productsPurchase,
+      invoice.products,
+    );
 
-    // return new InvoiceDTO(newInvoice);
-    return {
-      id: 'id',
-      user_id: 'user_id',
-      products: [],
-      total: 100,
-      date: new Date(),
-    };
+    const newInvoice = new InvoiceDTO({
+      ...invoice,
+      createdAt: new Date(),
+      total,
+    } as Invoice);
+
+    const response = await this.invoiceModel.create(newInvoice);
+    return new InvoiceDTO(response);
   }
 
-  //TODO: Finish this function
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getTotal(productOrder: ProductOrderDTO[]): Promise<number> {
-    const total = 0;
+  private calculateTotalAndCheckStock(
+    productsPurchase: ProductPurchaseDTO[],
+    productOrders: ProductOrderDTO[],
+  ): number {
+    let total = 0;
+
+    productsPurchase.forEach((p) => {
+      const currentProduct = productOrders.find(
+        (pr) => pr.product_id === p.id,
+      )!;
+
+      if (currentProduct.quantity > p.stock) {
+        throw new HttpException(`Not enough stock for product ${p.id}`, 400);
+      }
+
+      total += p.price * currentProduct.quantity;
+    });
 
     return total;
   }
 
-  //TODO: Implement update method
   async update(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     id: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    newInvoice: UpdateInvoiceDTO,
+    updatedInvoice: UpdateInvoiceDTO,
   ): Promise<InvoiceDTO> {
-    return {
-      id: 'id',
-      user_id: 'user_id',
-      products: [],
-      total: 100,
-      date: new Date(),
+    await this.findById(id);
+
+    if (updatedInvoice.user_id)
+      await this.userService.findById(updatedInvoice.user_id);
+
+    let products: ProductPurchaseDTO[] | undefined;
+    let total: number | undefined;
+    if (updatedInvoice.products) {
+      products = await this.prouductService.validateProductsExist(
+        updatedInvoice.products,
+      );
+
+      total = this.calculateTotalAndCheckStock(
+        products,
+        updatedInvoice.products,
+      );
+    }
+
+    const invoice = {
+      ...updatedInvoice,
+      total,
     };
+
+    const result = await this.invoiceModel
+      .findByIdAndUpdate(id, invoice, { new: true })
+      .exec();
+
+    return new InvoiceDTO(result as Invoice);
   }
 
-  //TODO: Implement delete method
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async delete(id: string): Promise<void> {}
+  async delete(id: string): Promise<void> {
+    const response = await this.invoiceModel.findByIdAndDelete(id).exec();
+
+    console.log(response);
+  }
 }

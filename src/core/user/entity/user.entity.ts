@@ -1,11 +1,11 @@
 import { UserRole } from './user-role.enum';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+@Schema()
 export class User {
-  @Prop({ isRequired: true })
   _id: string;
 
-  @Prop()
+  @Prop({ isRequired: false })
   name?: string;
 
   @Prop({ isRequired: true })

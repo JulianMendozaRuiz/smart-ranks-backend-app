@@ -17,6 +17,7 @@ export class CreateUserDTO {
   email: string;
 
   @IsNotEmpty()
+  @IsString()
   password: string;
 
   @IsEnum(UserRole)

@@ -19,5 +19,6 @@ export class CreateInvoiceDTO {
   products: ProductOrderDTO[];
 
   @IsDate()
+  @Type(() => Date)
   date: Date;
 }

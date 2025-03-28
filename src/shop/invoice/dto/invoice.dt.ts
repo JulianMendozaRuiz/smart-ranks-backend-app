@@ -32,12 +32,13 @@ export class InvoiceDTO {
   total: number;
 
   @IsDate()
+  @Type(() => Date)
   date: Date;
 
   constructor(invoice: Invoice) {
-    this.id = invoice.id;
+    this.id = invoice._id.toString();
     this.user_id = invoice.user_id;
-    this.products = invoice.products.map((po) => new ProductOrderDTO(po));
+    this.products = invoice.products;
     this.total = invoice.total;
     this.date = invoice.date;
   }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
@@ -12,7 +13,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
@@ -21,6 +24,9 @@ import {
 import { InvoiceDTO } from './dto/invoice.dt';
 import { Invoice } from './entity/invoice.entity';
 import { InvoiceService } from './invoice.service';
+import { CreateInvoiceDTO } from './dto/create-invoice.dt';
+import { UpdateInvoiceDTO } from './dto/update-invoice.dt';
+import { IsMongoIdPipe } from '../../common/pipes/is-mongo-id/is-mongo-id.pipe';
 
 @ApiTags('Invoice')
 @Controller('invoice')
@@ -36,9 +42,9 @@ export class InvoiceController {
     isArray: true,
   })
   @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
-  async getInvoices(
-    @Query('sort') sort: 'asc' | 'desc' = 'asc',
-    @Query('limit') limit: number,
+  async findAll(
+    @Query('sort', ValidationPipe) sort: 'asc' | 'desc' = 'asc',
+    @Query('limit', ValidationPipe, new DefaultValuePipe(100)) limit: number,
   ): Promise<InvoiceDTO[]> {
     return await this.invoiceService.findAll(sort, limit);
   }
@@ -51,25 +57,35 @@ export class InvoiceController {
   })
   @ApiNotFoundResponse({ description: 'Invoice not found.' })
   @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
-  async getInvoiceById(
-    @Param('id') id: string,
+  async findById(
+    @Param('id', ValidationPipe, IsMongoIdPipe) id: string,
   ): Promise<InvoiceDTO | undefined> {
-    return await this.invoiceService.findById(id);
+    const result = await this.invoiceService.findById(id);
+
+    // TODO: Move to logging service
+    console.log('invoice', result);
+
+    return result;
   }
 
   @Post()
+  @ApiBody({ type: CreateInvoiceDTO, description: 'Invoice input DTO' })
   @ApiCreatedResponse({
     description: 'New invoice created.',
     type: InvoiceDTO,
   })
   @ApiBadRequestResponse({ description: 'Invalid input provided' })
   async createInvoice(
-    @Body(ValidationPipe) input: InvoiceDTO,
+    @Body(new ValidationPipe({ transform: true })) input: CreateInvoiceDTO,
   ): Promise<InvoiceDTO> {
     return await this.invoiceService.create(input);
   }
 
   @Put(':id')
+  @ApiBody({
+    type: UpdateInvoiceDTO,
+    description: 'Invoice input DTO for update',
+  })
   @ApiParam({ name: 'id', type: 'string', description: 'Id of invoice' })
   @ApiOkResponse({
     description: 'Invoice updated.',
@@ -79,8 +95,8 @@ export class InvoiceController {
   @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
   @ApiBadRequestResponse({ description: 'Invalid input provided' })
   async updateInvoice(
-    @Param('id') id: string,
-    @Body(ValidationPipe) input: InvoiceDTO,
+    @Param('id', ValidationPipe, IsMongoIdPipe) id: string,
+    @Body(ValidationPipe) input: UpdateInvoiceDTO,
   ): Promise<InvoiceDTO> {
     return await this.invoiceService.update(id, input);
   }
@@ -88,7 +104,7 @@ export class InvoiceController {
   @Delete(':id')
   @HttpCode(204)
   @ApiParam({ name: 'id', type: 'string', description: 'Id of invoice' })
-  @ApiOkResponse({ description: 'Invoice deleted.' })
+  @ApiNoContentResponse({ description: 'Invoice deleted.' })
   @ApiNotFoundResponse({ description: 'Invoice not found.' })
   @ApiBadRequestResponse({ description: 'Invalid parameters provided' })
   async deleteInvoice(@Param('id') id: string): Promise<void> {

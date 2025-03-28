@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -63,7 +64,7 @@ export class ProductController {
   })
   @ApiNotFoundResponse({ description: 'Product not found.' })
   @ApiBadRequestResponse({ description: 'Invalid mongoid provided' })
-  async findOne(@Param('id', ValidationPipe, IsMongoIdPipe) id: string) {
+  async findById(@Param('id', ValidationPipe, IsMongoIdPipe) id: string) {
     const product = await this.productService.findById(id);
 
     // TODO: Move to logging service instead
@@ -72,8 +73,22 @@ export class ProductController {
     return product;
   }
 
+  @Get('/buy-checkout')
+  async findAllForInvoice(pIdList: string[]) {
+    const result = await this.productService.findAllForInvoiceById(pIdList);
+
+    // TODO: Move to logging service instead
+    console.log('products for invoice', result);
+    return result;
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create new product' })
+  @ApiBody({
+    description: 'Create new product request.',
+    type: CreateProductDTO,
+    required: true,
+  })
   @ApiCreatedResponse({
     description: 'New product created.',
     type: CreateProductDTO,
@@ -85,6 +100,11 @@ export class ProductController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update product' })
+  @ApiBody({
+    description: 'Update product request.',
+    type: UpdateProductDTO,
+    required: true,
+  })
   @ApiOkResponse({
     description: 'Product updated.',
     type: UpdateProductDTO,
