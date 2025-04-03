@@ -30,7 +30,7 @@ export class UserDTO {
   role: UserRole;
 
   constructor(pUser: User) {
-    this.id = pUser._id.toString();
+    this.id = pUser._id ? pUser._id.toString() : '';
     this.name = pUser.name;
     this.email = pUser.email;
     this.role = pUser.role;

@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { UserDTO } from './dto/user.dt';
 import { CreateUserDTO } from './dto/create-user.dt';
@@ -6,6 +6,7 @@ import { UpdateUserDTO } from './dto/update-user.dt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { UserAuthDataDTO } from './dto/user-auth-data.dt';
 
 @Injectable()
 export class UserService {
@@ -30,10 +31,30 @@ export class UserService {
     const user = await this.userModel.findById(id).exec();
 
     if (!user) {
-      throw new HttpException(`User with ID ${id} not found`, 404);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     return new UserDTO(user);
+  }
+
+  async findByEmail(email: string): Promise<UserDTO> {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    return new UserDTO(user);
+  }
+
+  async findByEmailForAuthentication(email: string): Promise<UserAuthDataDTO> {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    return new UserAuthDataDTO(user);
   }
 
   async create(user: CreateUserDTO): Promise<UserDTO> {

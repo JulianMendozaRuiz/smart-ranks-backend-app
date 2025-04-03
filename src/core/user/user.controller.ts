@@ -50,8 +50,21 @@ export class UserController {
     type: UserDTO,
   })
   @ApiParam({ name: 'id', type: String })
-  async findOne(@Param('id') id: string): Promise<UserDTO> {
+  async findOne(@Param('id', ValidationPipe) id: string): Promise<UserDTO> {
     return this.userService.findById(id);
+  }
+
+  @Get('email/:email')
+  @ApiOperation({ summary: 'Get user by email' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a user',
+    type: UserDTO,
+  })
+  async findOneByEmail(
+    @Param('email', ValidationPipe) email: string,
+  ): Promise<UserDTO> {
+    return await this.userService.findByEmail(email);
   }
 
   @Post()
