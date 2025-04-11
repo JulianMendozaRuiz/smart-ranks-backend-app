@@ -9,6 +9,7 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UserAuthDataDTO } from '../user/dto/user-auth-data.dt';
 import { JwtService } from '@nestjs/jwt';
+import { AuthTokenPayloadDTO } from './dto/auth-token-payload.dt';
 
 @Injectable()
 export class AuthService {
@@ -26,9 +27,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException(
-        `Invalid password for user with email ${authInput.email}`,
-      );
+      throw new UnauthorizedException(`Invalid credentials`);
     }
 
     return this.signIn(user!);
@@ -39,20 +38,18 @@ export class AuthService {
       authInput.email,
     );
     if (!user) {
-      throw new NotFoundException(
-        `User with email ${authInput.email} not found`,
-      );
+      throw new NotFoundException(`Invalid credentials`);
     }
 
     return user;
   }
 
   async signIn(user: UserAuthDataDTO) {
-    const tokenPayload = {
-      sub: user.userId,
-      username: user.email,
-      role: user.role,
-    };
+    const tokenPayload = new AuthTokenPayloadDTO(
+      user.userId,
+      user.email,
+      user.role,
+    );
 
     const accessToken = await this.jwtService.signAsync(tokenPayload);
 

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -22,20 +23,19 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { InvoiceDTO } from './dto/invoice.dt';
-import { Invoice } from './entity/invoice.entity';
 import { InvoiceService } from './invoice.service';
 import { CreateInvoiceDTO } from './dto/create-invoice.dt';
 import { UpdateInvoiceDTO } from './dto/update-invoice.dt';
 import { IsMongoIdPipe } from '../../common/pipes/is-mongo-id/is-mongo-id.pipe';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
 
 @ApiTags('Invoice')
 @Controller('invoice')
 export class InvoiceController {
-  private invoices: Invoice[] = [];
-
   constructor(private invoiceService: InvoiceService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   @ApiOkResponse({
     description: 'Return list of invoices.',
     type: InvoiceDTO,
@@ -50,6 +50,7 @@ export class InvoiceController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   @ApiParam({ name: 'id', type: 'string', description: 'Id of invoice' })
   @ApiOkResponse({
     description: 'Return invoice by id.',
@@ -69,6 +70,7 @@ export class InvoiceController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiBody({ type: CreateInvoiceDTO, description: 'Invoice input DTO' })
   @ApiCreatedResponse({
     description: 'New invoice created.',
@@ -82,6 +84,7 @@ export class InvoiceController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   @ApiBody({
     type: UpdateInvoiceDTO,
     description: 'Invoice input DTO for update',
@@ -102,6 +105,7 @@ export class InvoiceController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @ApiParam({ name: 'id', type: 'string', description: 'Id of invoice' })
   @ApiNoContentResponse({ description: 'Invoice deleted.' })

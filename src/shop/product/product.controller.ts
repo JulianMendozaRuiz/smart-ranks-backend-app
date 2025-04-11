@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -29,6 +30,7 @@ import { IsPositivePipe } from '../../common/pipes/is-positive/is-positive.pipe'
 import { CreateProductDTO } from './dto/create-product.dt';
 import { UpdateProductDTO } from './dto/update-product.dt';
 import { IsMongoIdPipe } from '../../common/pipes/is-mongo-id/is-mongo-id.pipe';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
 
 @ApiTags('Product')
 @Controller('product')
@@ -36,6 +38,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get list products' })
   @ApiOkResponse({
     description: 'Return list products.',
@@ -56,6 +59,7 @@ export class ProductController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get product by id' })
   @ApiParam({ name: 'id', description: 'Product id' })
   @ApiOkResponse({
@@ -83,6 +87,7 @@ export class ProductController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create new product' })
   @ApiBody({
     description: 'Create new product request.',
@@ -99,6 +104,7 @@ export class ProductController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update product' })
   @ApiBody({
     description: 'Update product request.',
@@ -119,6 +125,7 @@ export class ProductController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete product' })
   @ApiParam({ name: 'id', description: 'Product id' })

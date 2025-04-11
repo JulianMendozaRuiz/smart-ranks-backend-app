@@ -24,6 +24,10 @@ export class AuthController {
     status: 200,
     description: 'User logged in successfully',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials',
+  })
   async login(
     @Body(ValidationPipe) authInput: AuthInputDTO,
   ): Promise<AuthResultDTO | null> {
@@ -34,6 +38,10 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'User info retrieved successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @UseGuards(AuthGuard)
   getUserInfo(@Request() request): Promise<AuthResultDTO | null> {

@@ -4,6 +4,7 @@ import {
   Delete,
   HttpCode,
   ParseIntPipe,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { Get, Post, Put, Body, Query, Param } from '@nestjs/common';
@@ -14,12 +15,16 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiBody,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UserDTO } from './dto/user.dt';
 import { CreateUserDTO } from './dto/create-user.dt';
 import { UpdateUserDTO } from './dto/update-user.dt';
 import { IsPositivePipe } from '../../common/pipes/is-positive/is-positive.pipe';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
+import { AdminRoleGuard } from '../../common/guards/role/admin-role/admin-role.guard';
+import { UpdateUserGuard } from '../../common/guards/user/update-user/update-user.guard';
 
 @Controller('user')
 export class UserController {
@@ -68,6 +73,7 @@ export class UserController {
   }
 
   @Post()
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({
     status: 201,
@@ -81,6 +87,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard, UpdateUserGuard)
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({
     status: 200,
@@ -89,6 +96,9 @@ export class UserController {
   })
   @ApiNotFoundResponse({
     description: 'User not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({
@@ -103,6 +113,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse({
